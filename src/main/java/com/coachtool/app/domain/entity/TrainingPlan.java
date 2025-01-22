@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "training_plan")
@@ -13,19 +13,18 @@ import java.util.UUID;
 public class TrainingPlan {
     @Id
     @Column(name = "id")
-    private UUID id;
+    private Long id;
+
+    @Column(name = "week_begin_date")
+    private Date weekBeginDate;
 
     @ManyToOne
-    @JoinColumn(name = "coach_id", referencedColumnName = "id")
-    private Coach coachId;
-
-    @ManyToOne
-    @JoinColumn(name = "id_training_plan_cell", referencedColumnName = "id")
-    private Mentee menteeId;
+    @JoinColumn(name = "coach_mentee_id", referencedColumnName = "id")
+    private Coach_mentee coach_mentee;
 
     @OneToMany(mappedBy = "trainingPlan",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.REMOVE,
+            cascade = CascadeType.ALL,
             orphanRemoval = true)
     @JsonIgnore
     private List<Cell> cells;
