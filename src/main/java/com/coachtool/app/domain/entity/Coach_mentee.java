@@ -8,24 +8,31 @@ import lombok.Setter;
 
 import java.util.List;
 
+
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "role")
-public class Role {
+@Table(name = "coach_mentee")
+public class Coach_mentee {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User coach;
 
-    @OneToMany( mappedBy = "role",
+    @ManyToOne
+    @JoinColumn(name = "mentee_id", referencedColumnName = "id")
+    private User mentee;
+
+    @OneToMany(mappedBy = "coach_mentee",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.REMOVE,
+            cascade = CascadeType.ALL,
             orphanRemoval = true)
     @JsonIgnore
-    private List<User> users;
+    private List<TrainingPlan> TrainingPlans;
+
 }

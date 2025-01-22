@@ -1,17 +1,13 @@
 package com.coachtool.app.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Builder
@@ -20,13 +16,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-public class User implements UserDetails {
+public class User  {
     @Id
     @Column(name = "id")
-    private UUID id;
-
-    @Column(name = "username", unique = true, nullable = false)
-    private String username;
+    private Long id;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -47,45 +40,17 @@ public class User implements UserDetails {
     @DateTimeFormat(pattern = "dd.mm.yyyy")
     private Date dateOfBirth;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
+    @OneToOne(mappedBy = "coach")
+    private Coach_mentee coach;
+
+    @OneToMany(mappedBy = "mentee",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    @JsonIgnore
+    private List<Coach_mentee> mentees;
+
+    @ManyToOne
+    @JoinColumn(name = "role")
     private Role role;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", middleName='" + middleName + '\'' +
-                ", surname='" + surname + '\'' +
-                ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
-                ", role=" + role +
-                '}';
-    }
 }

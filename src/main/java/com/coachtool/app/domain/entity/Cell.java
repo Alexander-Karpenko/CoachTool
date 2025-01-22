@@ -4,18 +4,22 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
-import org.springframework.stereotype.Component;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.UUID;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "cell")
-@Component
 public class Cell {
     @Id
     @Column(name = "id")
-    private UUID id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "id_training_plan")
@@ -26,12 +30,12 @@ public class Cell {
 
     @Column(name = "column_position")
     @Min(0)
-    @Max(20)
+    @Max(30)
     private int columnPosition;
 
-    @Column(name = "exerciseType")
-    @Size(min = 3, max = 50)
-    private String exerciseType;
+    @ManyToOne
+    @JoinColumn(name = "exerciseType_id", referencedColumnName = "id")
+    private ExerciseType exerciseType;
 
     @Column(name = "weight")
     @Min(1)
@@ -48,7 +52,13 @@ public class Cell {
     @Max(50)
     private int sets;
 
+    @Column(name = "exercise_progress")
+    @Min(0)
+    @Max(1)
+    private double exerciseProgress;
+
     @Column(name = "comment")
     @Size(max = 100)
     private String comment;
+
 }
