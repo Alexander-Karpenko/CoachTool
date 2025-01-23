@@ -41,14 +41,14 @@ public class User  {
     private Date dateOfBirth;
 
     @OneToOne(mappedBy = "coach")
-    private Coach_mentee coach;
+    private CoachMentee coach;
 
     @OneToMany(mappedBy = "mentee",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     @JsonIgnore
-    private List<Coach_mentee> mentees;
+    private List<CoachMentee> mentees;
 
     @ManyToOne
     @JoinColumn(name = "role")
