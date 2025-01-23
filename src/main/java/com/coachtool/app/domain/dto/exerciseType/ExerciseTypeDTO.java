@@ -1,6 +1,5 @@
 package com.coachtool.app.domain.dto.exerciseType;
 
-import jakarta.persistence.Column;
 import lombok.Data;
 
 @Data

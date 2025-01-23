@@ -1,9 +1,7 @@
 package com.coachtool.app.domain.dto.trainingPlan;
 
-import com.coachtool.app.domain.entity.Cell;
+import com.coachtool.app.domain.dto.cell.CellDTO;
 import com.coachtool.app.domain.entity.CoachMentee;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.Date;
@@ -17,5 +15,5 @@ public class TrainingPlanDTO {
 
     private CoachMentee coach_mentee;
 
-    private List<Cell> cells;
+    private List<CellDTO> cells;
 }
