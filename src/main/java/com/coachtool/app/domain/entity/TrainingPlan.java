@@ -20,7 +20,7 @@ public class TrainingPlan {
 
     @ManyToOne
     @JoinColumn(name = "coach_mentee_id", referencedColumnName = "id")
-    private Coach_mentee coach_mentee;
+    private CoachMentee coach_mentee;
 
     @OneToMany(mappedBy = "trainingPlan",
             fetch = FetchType.LAZY,
