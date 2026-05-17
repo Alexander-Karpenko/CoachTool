@@ -15,5 +15,6 @@ public record VolumeStatsResponse(
         double volumeChangePercent,
         double intensityChangePercent,
         int totalPrograms,
-        int totalExercises
+        int totalExercises,
+        double avgDailyVolume
 ) {}

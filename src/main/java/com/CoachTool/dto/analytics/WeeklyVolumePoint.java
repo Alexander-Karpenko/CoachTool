@@ -6,5 +6,6 @@ public record WeeklyVolumePoint(
         LocalDate weekStart,
         double totalVolume,
         double averageIntensity,
-        int exerciseCount
+        int exerciseCount,
+        int trainingDays
 ) {}

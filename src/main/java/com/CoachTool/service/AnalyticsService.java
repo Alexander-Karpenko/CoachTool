@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -78,8 +79,19 @@ public class AnalyticsService {
                         p.getWeekStartDate(),
                         round2(programVolume(p)),
                         round2(avgIntensity(p.getExercises())),
-                        p.getExercises().size()))
+                        p.getExercises().size(),
+                        countTrainingDays(p)))
                 .toList();
+    }
+
+    /** Distinct days with exercises (1–7). Falls back to 1 for old data without dayOfWeek. */
+    private int countTrainingDays(TrainingProgram p) {
+        long days = p.getExercises().stream()
+                .map(TrainingExercise::getDayOfWeek)
+                .filter(Objects::nonNull)
+                .distinct()
+                .count();
+        return days > 0 ? (int) days : (p.getExercises().isEmpty() ? 0 : 1);
     }
 
     private List<ExerciseSummary> buildExerciseSummaries(List<TrainingProgram> programs, Long athleteId) {
@@ -132,14 +144,16 @@ public class AnalyticsService {
         double avgInt  = round2(chart.stream().filter(p -> p.averageIntensity() > 0)
                 .mapToDouble(WeeklyVolumePoint::averageIntensity).average().orElse(0));
 
-        int totalExercises = programs.stream().mapToInt(p -> p.getExercises().size()).sum();
+        int totalExercises    = programs.stream().mapToInt(p -> p.getExercises().size()).sum();
+        int totalTrainingDays = chart.stream().mapToInt(WeeklyVolumePoint::trainingDays).sum();
+        double avgDailyVolume = totalTrainingDays > 0 ? round2(total / totalTrainingDays) : 0;
 
         return new VolumeStatsResponse(
                 athlete.getId(), athlete.getFirstName(), athlete.getLastName(), from, to,
                 total, avgWeek, peak, avgInt,
                 changePercent(chart, WeeklyVolumePoint::totalVolume),
                 changePercent(chart, WeeklyVolumePoint::averageIntensity),
-                programs.size(), totalExercises);
+                programs.size(), totalExercises, avgDailyVolume);
     }
 
     private List<MaxProgressPoint> buildMaxChart(Long athleteId, Long exerciseId,

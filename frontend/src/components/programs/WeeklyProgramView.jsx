@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, CalendarDays, X, Pencil, GripVertical } from 'lucide-react'
 import { exerciseApi } from '../../api'
 import { useLanguage } from '../../hooks/useLanguage'
@@ -228,7 +228,7 @@ function ExerciseCard({ ex, isDragging, kgLabel, onEdit, onRemove, onDragStart, 
 /* ── Day column ── */
 function DayColumn({ day, dayName, dateStr, exs, isWeekend, isDragOver, draggingIdx,
                      kgLabel, t, onAddClick,
-                     onDragOver, onDragLeave, onDrop,
+                     onDragEnter, onDragOver, onDragLeave, onDrop,
                      onCardDragStart, onCardDragEnd,
                      onCardEdit, onCardRemove }) {
   return (
@@ -241,6 +241,7 @@ function DayColumn({ day, dayName, dateStr, exs, isWeekend, isDragOver, dragging
             ? 'border-violet-200 bg-violet-50/40'
             : 'border-gray-200 bg-gray-50/60',
       ].join(' ')}
+      onDragEnter={onDragEnter}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
@@ -317,8 +318,6 @@ export function WeeklyProgramView({ program, open, onClose, onSave, onCopyNextWe
   // DnD state
   const [draggingIdx, setDraggingIdx] = useState(null)
   const [dragOverDay, setDragOverDay] = useState(null)
-  // Ref to track drag-enter/leave correctly across children
-  const dragEnterCount = useRef({})
 
   useEffect(() => {
     exerciseApi.getAll()
@@ -387,12 +386,10 @@ export function WeeklyProgramView({ program, open, onClose, onSave, onCopyNextWe
   const onCardDragEnd = () => {
     setDraggingIdx(null)
     setDragOverDay(null)
-    dragEnterCount.current = {}
   }
 
   const onColumnDragEnter = (e, day) => {
     e.preventDefault()
-    dragEnterCount.current[day] = (dragEnterCount.current[day] ?? 0) + 1
     setDragOverDay(day)
   }
 
@@ -402,9 +399,7 @@ export function WeeklyProgramView({ program, open, onClose, onSave, onCopyNextWe
   }
 
   const onColumnDragLeave = (e, day) => {
-    dragEnterCount.current[day] = (dragEnterCount.current[day] ?? 1) - 1
-    if (dragEnterCount.current[day] <= 0) {
-      dragEnterCount.current[day] = 0
+    if (!e.currentTarget.contains(e.relatedTarget)) {
       setDragOverDay(prev => prev === day ? null : prev)
     }
   }
@@ -417,7 +412,6 @@ export function WeeklyProgramView({ program, open, onClose, onSave, onCopyNextWe
     }
     setDraggingIdx(null)
     setDragOverDay(null)
-    dragEnterCount.current = {}
   }
 
   /* ── Save ── */
@@ -485,10 +479,11 @@ export function WeeklyProgramView({ program, open, onClose, onSave, onCopyNextWe
                   kgLabel={kgLabel}
                   t={t}
                   onAddClick={() => setAddModal({ dayNum: day })}
+                  onDragEnter={e => onColumnDragEnter(e, day)}
                   onDragOver={onColumnDragOver}
                   onDragLeave={e => onColumnDragLeave(e, day)}
                   onDrop={e => onColumnDrop(e, day)}
-                  onCardDragStart={(e, idx) => { onColumnDragEnter(e, day); onCardDragStart(e, idx) }}
+                  onCardDragStart={(e, idx) => onCardDragStart(e, idx)}
                   onCardDragEnd={onCardDragEnd}
                   onCardEdit={idx => setEditModal({ idx })}
                   onCardRemove={idx => removeAt(idx)}

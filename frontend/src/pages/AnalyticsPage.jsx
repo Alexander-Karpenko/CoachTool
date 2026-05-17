@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BarChart2, TrendingUp, TrendingDown, Dumbbell, Calendar, Activity } from 'lucide-react'
+import { BarChart2, TrendingUp, TrendingDown, Dumbbell, Calendar, Activity, Flame } from 'lucide-react'
 import { analyticsApi, athleteApi } from '../api'
 import { useLanguage }  from '../hooks/useLanguage'
 import { Button }       from '../components/common/Button'
@@ -215,8 +215,9 @@ export function AnalyticsPage() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard icon={Calendar} label={t('analytics.programs')}  value={fmtNum(vs.totalPrograms)} />
-            <StatCard icon={Dumbbell} label={t('analytics.exercises')} value={fmtNum(vs.totalExercises)} />
+            <StatCard icon={Calendar} label={t('analytics.programs')}      value={fmtNum(vs.totalPrograms)} />
+            <StatCard icon={Dumbbell} label={t('analytics.exercises')}     value={fmtNum(vs.totalExercises)} />
+            <StatCard icon={Flame}    label={t('analytics.avgDailyVolume')} value={fmtKg(vs.avgDailyVolume, kgLabel)} />
           </div>
 
           {/* Weekly volume chart */}

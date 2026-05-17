@@ -148,6 +148,7 @@ export const ru = {
     reportFor: 'Отчёт для',
     totalVolume: 'Общий объём',
     avgWeeklyVolume: 'Ср. недельный объём',
+    avgDailyVolume: 'Ср. за тренир. день',
     peakWeeklyVolume: 'Пиковый нед. объём',
     avgIntensity: 'Средняя интенсивность',
     programs: 'Программы',

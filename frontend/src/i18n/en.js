@@ -148,6 +148,7 @@ export const en = {
     reportFor: 'Report for',
     totalVolume: 'Total Volume',
     avgWeeklyVolume: 'Avg Weekly Volume',
+    avgDailyVolume: 'Avg per Training Day',
     peakWeeklyVolume: 'Peak Weekly Volume',
     avgIntensity: 'Avg Intensity',
     programs: 'Programs',
