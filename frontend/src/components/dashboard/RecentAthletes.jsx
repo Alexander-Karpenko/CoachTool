@@ -29,9 +29,13 @@ function AthleteRow({ athlete, t }) {
   return (
     <div className="flex items-center justify-between py-3 px-2 -mx-2 rounded-lg hover:bg-gray-50 transition-colors">
       <div className="flex items-center gap-3 min-w-0">
-        <div className={`h-9 w-9 rounded-full ${avatarColor(name)} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+        <Link
+          to={ROUTES.ATHLETES}
+          className={`h-9 w-9 rounded-full ${avatarColor(name)} flex items-center justify-center text-white text-xs font-bold shrink-0 hover:ring-2 hover:ring-offset-1 hover:ring-white/60 transition-all`}
+          title={name}
+        >
           {initials(athlete.firstName, athlete.lastName)}
-        </div>
+        </Link>
         <div className="min-w-0">
           <p className="text-sm font-medium text-gray-900 truncate">{name}</p>
           <p className="text-xs text-gray-500 truncate">

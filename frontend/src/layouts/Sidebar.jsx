@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, Link } from 'react-router-dom'
 import {
   LayoutDashboard,
   Users,
@@ -20,15 +20,18 @@ function UserAvatar({ firstName, lastName, email }) {
     : (email?.[0] ?? 'U').toUpperCase()
 
   return (
-    <div className="flex items-center gap-3 px-3 py-2">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-xs font-bold text-white">
+    <Link
+      to={ROUTES.PROFILE}
+      className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors group"
+    >
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-xs font-bold text-white group-hover:ring-2 group-hover:ring-indigo-400 group-hover:ring-offset-1 group-hover:ring-offset-slate-900 transition-all">
         {initials}
       </div>
       <div className="min-w-0">
         {fullName && <p className="text-sm font-medium text-white truncate">{fullName}</p>}
         <p className="text-xs text-slate-400 truncate">{email}</p>
       </div>
-    </div>
+    </Link>
   )
 }
 
