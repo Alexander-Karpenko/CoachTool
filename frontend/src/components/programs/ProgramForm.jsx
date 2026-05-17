@@ -2,14 +2,35 @@ import { useState, useEffect } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { exerciseApi }   from '../../api'
 import { useLanguage }   from '../../hooks/useLanguage'
-import { Input }     from '../common/Input'
-import { Select }    from '../common/Select'
-import { Textarea }  from '../common/Textarea'
-import { Button }    from '../common/Button'
-import { Alert }     from '../common/Alert'
+import { Input }    from '../common/Input'
+import { Select }   from '../common/Select'
+import { Textarea } from '../common/Textarea'
+import { Button }   from '../common/Button'
+import { Alert }    from '../common/Alert'
 
-const blankEx   = () => ({ exerciseId: '', sets: '', reps: '', weight: '', percentageOfMax: '', comments: '', orderIndex: 0 })
+const blankEx   = () => ({ exerciseId: '', sets: '', reps: '', weight: '', percentageOfMax: '', comments: '', orderIndex: 0, dayOfWeek: '' })
 const blankForm = { title: '', athleteId: '', weekStartDate: '', notes: '', exercises: [blankEx()] }
+
+function toFormState(p) {
+  return {
+    title:         p.title ?? '',
+    athleteId:     String(p.athleteId ?? ''),
+    weekStartDate: p.weekStartDate ?? '',
+    notes:         p.notes ?? '',
+    exercises:     p.exercises?.length
+      ? p.exercises.map(e => ({
+          exerciseId:      String(e.exerciseId),
+          sets:            String(e.sets),
+          reps:            String(e.reps),
+          weight:          e.weight          != null ? String(e.weight)          : '',
+          percentageOfMax: e.percentageOfMax != null ? String(e.percentageOfMax) : '',
+          comments:        e.comments ?? '',
+          orderIndex:      e.orderIndex,
+          dayOfWeek:       e.dayOfWeek != null ? String(e.dayOfWeek) : '',
+        }))
+      : [blankEx()],
+  }
+}
 
 export function ProgramForm({ initial, athletes, onSubmit, onClose, loading, error }) {
   const { t } = useLanguage()
@@ -19,43 +40,33 @@ export function ProgramForm({ initial, athletes, onSubmit, onClose, loading, err
 
   useEffect(() => {
     exerciseApi.getAll()
-      .then(({ data }) => setExercises(data.map((e) => ({ value: String(e.id), label: e.name }))))
+      .then(({ data }) => setExercises(data.map(e => ({ value: String(e.id), label: e.name }))))
       .catch(() => {})
       .finally(() => setExLoading(false))
   }, [])
 
-  function toFormState(p) {
-    return {
-      title:         p.title ?? '',
-      athleteId:     String(p.athleteId ?? ''),
-      weekStartDate: p.weekStartDate ?? '',
-      notes:         p.notes ?? '',
-      exercises:     p.exercises?.length
-        ? p.exercises.map((e) => ({
-            exerciseId:      String(e.exerciseId),
-            sets:            String(e.sets),
-            reps:            String(e.reps),
-            weight:          e.weight != null ? String(e.weight) : '',
-            percentageOfMax: e.percentageOfMax != null ? String(e.percentageOfMax) : '',
-            comments:        e.comments ?? '',
-            orderIndex:      e.orderIndex,
-          }))
-        : [blankEx()],
-    }
-  }
+  const dayOptions = [
+    { value: '1', label: t('programs.dayMonFull') },
+    { value: '2', label: t('programs.dayTueFull') },
+    { value: '3', label: t('programs.dayWedFull') },
+    { value: '4', label: t('programs.dayThuFull') },
+    { value: '5', label: t('programs.dayFriFull') },
+    { value: '6', label: t('programs.daySatFull') },
+    { value: '7', label: t('programs.daySunFull') },
+  ]
 
-  const setField  = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }))
+  const setField   = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }))
   const setExField = (idx, e) => {
     const { name, value } = e.target
-    setForm((p) => {
+    setForm(p => {
       const exs = [...p.exercises]
       exs[idx] = { ...exs[idx], [name]: value }
       return { ...p, exercises: exs }
     })
   }
 
-  const addEx    = ()    => setForm((p) => ({ ...p, exercises: [...p.exercises, { ...blankEx(), orderIndex: p.exercises.length }] }))
-  const removeEx = (i)   => setForm((p) => ({ ...p, exercises: p.exercises.filter((_, j) => j !== i).map((e, j) => ({ ...e, orderIndex: j })) }))
+  const addEx    = ()  => setForm(p => ({ ...p, exercises: [...p.exercises, { ...blankEx(), orderIndex: p.exercises.length }] }))
+  const removeEx = (i) => setForm(p => ({ ...p, exercises: p.exercises.filter((_, j) => j !== i).map((e, j) => ({ ...e, orderIndex: j })) }))
 
   const submit = (e) => {
     e.preventDefault()
@@ -72,11 +83,12 @@ export function ProgramForm({ initial, athletes, onSubmit, onClose, loading, err
         percentageOfMax: ex.percentageOfMax ? Number(ex.percentageOfMax) : null,
         comments:        ex.comments || null,
         orderIndex:      i,
+        dayOfWeek:       ex.dayOfWeek ? Number(ex.dayOfWeek) : null,
       })),
     })
   }
 
-  const athleteOptions = athletes.map((a) => ({ value: String(a.id), label: `${a.firstName} ${a.lastName}` }))
+  const athleteOptions = athletes.map(a => ({ value: String(a.id), label: `${a.firstName} ${a.lastName}` }))
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
@@ -107,14 +119,16 @@ export function ProgramForm({ initial, athletes, onSubmit, onClose, loading, err
             <div key={i} className="flex gap-2 items-start rounded-lg border border-gray-200 p-2.5 bg-gray-50">
               <span className="text-xs text-gray-400 font-medium pt-2 w-5 shrink-0">{i + 1}</span>
 
-              <div className="flex-1 grid grid-cols-2 sm:grid-cols-6 gap-2 min-w-0">
+              <div className="flex-1 grid grid-cols-2 sm:grid-cols-7 gap-2 min-w-0">
                 <div className="col-span-2 sm:col-span-3">
-                  <Select name="exerciseId" value={ex.exerciseId} onChange={(e) => setExField(i, e)}
+                  <Select name="exerciseId" value={ex.exerciseId} onChange={e => setExField(i, e)}
                     required placeholder={exLoading ? t('common.loading') : t('forms.program.selectExercise')} options={exercises} />
                 </div>
-                <Input name="sets"   type="number" min="1" max="100"   placeholder={t('forms.program.sets')} value={ex.sets}   onChange={(e) => setExField(i, e)} required />
-                <Input name="reps"   type="number" min="1" max="10000" placeholder={t('forms.program.reps')} value={ex.reps}   onChange={(e) => setExField(i, e)} required />
-                <Input name="weight" type="number" min="0" placeholder={t('enums.unit.KG')}                 value={ex.weight} onChange={(e) => setExField(i, e)} />
+                <Input name="sets"   type="number" min="1" max="100"   placeholder={t('forms.program.sets')} value={ex.sets}   onChange={e => setExField(i, e)} required />
+                <Input name="reps"   type="number" min="1" max="10000" placeholder={t('forms.program.reps')} value={ex.reps}   onChange={e => setExField(i, e)} required />
+                <Input name="weight" type="number" min="0" placeholder={t('enums.unit.KG')}                 value={ex.weight} onChange={e => setExField(i, e)} />
+                <Select name="dayOfWeek" value={ex.dayOfWeek} onChange={e => setExField(i, e)}
+                  placeholder={t('programs.noDay')} options={dayOptions} />
               </div>
 
               <button type="button" onClick={() => removeEx(i)}

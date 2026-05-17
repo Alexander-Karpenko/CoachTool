@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +84,39 @@ public class TrainingProgramService {
     public void delete(Long id, String coachEmail) {
         requireOwned(id, coachEmail);
         trainingProgramRepository.deleteById(id);
+    }
+
+    public TrainingProgramResponse copyToNextWeek(Long id, String coachEmail) {
+        TrainingProgram source = requireOwned(id, coachEmail);
+
+        LocalDate nextWeekStart = source.getWeekStartDate() != null
+                ? source.getWeekStartDate().plusWeeks(1)
+                : LocalDate.now().plusWeeks(1);
+
+        TrainingProgram copy = TrainingProgram.builder()
+                .title(source.getTitle())
+                .notes(source.getNotes())
+                .weekStartDate(nextWeekStart)
+                .athlete(source.getAthlete())
+                .coach(source.getCoach())
+                .build();
+
+        source.getExercises().forEach(ex -> {
+            TrainingExercise newEx = TrainingExercise.builder()
+                    .sets(ex.getSets())
+                    .reps(ex.getReps())
+                    .weight(ex.getWeight())
+                    .percentageOfMax(ex.getPercentageOfMax())
+                    .comments(ex.getComments())
+                    .orderIndex(ex.getOrderIndex())
+                    .dayOfWeek(ex.getDayOfWeek())
+                    .exercise(ex.getExercise())
+                    .trainingProgram(copy)
+                    .build();
+            copy.getExercises().add(newEx);
+        });
+
+        return trainingProgramMapper.toResponse(trainingProgramRepository.save(copy));
     }
 
     private List<TrainingExercise> buildExercises(List<TrainingExerciseRequest> requests,

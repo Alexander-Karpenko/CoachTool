@@ -6,5 +6,6 @@ export const trainingProgramApi = {
   getById:      (id)            => api.get(`/api/training-programs/${id}`),
   create:       (data)          => api.post('/api/training-programs', data),
   update:       (id, data)      => api.put(`/api/training-programs/${id}`, data),
-  remove:       (id)            => api.delete(`/api/training-programs/${id}`),
+  remove:           (id)        => api.delete(`/api/training-programs/${id}`),
+  copyToNextWeek:   (id)        => api.post(`/api/training-programs/${id}/copy-next-week`),
 }

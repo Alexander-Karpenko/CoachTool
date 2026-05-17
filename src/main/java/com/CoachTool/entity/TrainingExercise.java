@@ -40,6 +40,10 @@ public class TrainingExercise {
     @Column(nullable = false)
     private Integer orderIndex;
 
+    /** Day of week: 1=Monday … 7=Sunday. Null means not assigned to a specific day. */
+    @Column(name = "day_of_week")
+    private Integer dayOfWeek;
+
     // Owning side: FK training_program_id lives in this table
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "training_program_id", nullable = false)

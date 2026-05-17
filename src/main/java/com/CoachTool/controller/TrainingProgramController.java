@@ -60,4 +60,11 @@ public class TrainingProgramController {
         trainingProgramService.delete(id, principal.getUsername());
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/copy-next-week")
+    public ResponseEntity<TrainingProgramResponse> copyToNextWeek(@PathVariable Long id,
+                                                                    @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(trainingProgramService.copyToNextWeek(id, principal.getUsername()));
+    }
 }

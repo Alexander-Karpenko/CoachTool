@@ -1,15 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ClipboardList, Plus, Pencil, Trash2 } from 'lucide-react'
 import { trainingProgramApi, athleteApi } from '../api'
-import { useLanguage }    from '../hooks/useLanguage'
-import { ProgramForm }    from '../components/programs/ProgramForm'
-import { Modal }          from '../components/common/Modal'
-import { ConfirmDialog }  from '../components/common/ConfirmDialog'
-import { Button }         from '../components/common/Button'
-import { Badge }          from '../components/common/Badge'
-import { Skeleton }       from '../components/common/Skeleton'
-import { EmptyState }     from '../components/common/EmptyState'
-import { Alert }          from '../components/common/Alert'
+import { useLanguage }          from '../hooks/useLanguage'
+import { ProgramForm }          from '../components/programs/ProgramForm'
+import { WeeklyProgramView }    from '../components/programs/WeeklyProgramView'
+import { Modal }                from '../components/common/Modal'
+import { ConfirmDialog }        from '../components/common/ConfirmDialog'
+import { Button }               from '../components/common/Button'
+import { Badge }                from '../components/common/Badge'
+import { Skeleton }             from '../components/common/Skeleton'
+import { EmptyState }           from '../components/common/EmptyState'
+import { Alert }                from '../components/common/Alert'
 
 function SkeletonRow() {
   return (
@@ -27,12 +28,23 @@ export function TrainingProgramsPage() {
   const [athletes,  setAthletes]  = useState([])
   const [loading,   setLoading]   = useState(true)
   const [pageError, setPageError] = useState(null)
-  const [formOpen,  setFormOpen]  = useState(false)
-  const [editing,   setEditing]   = useState(null)
+
+  // Edit form
+  const [formOpen,    setFormOpen]    = useState(false)
+  const [editing,     setEditing]     = useState(null)
   const [formLoading, setFormLoading] = useState(false)
   const [formError,   setFormError]   = useState(null)
-  const [delTarget,   setDelTarget]   = useState(null)
-  const [delLoading,  setDelLoading]  = useState(false)
+
+  // Delete
+  const [delTarget,  setDelTarget]  = useState(null)
+  const [delLoading, setDelLoading] = useState(false)
+
+  // Weekly view
+  const [weeklyProgram,     setWeeklyProgram]     = useState(null)
+  const [weeklyOpen,        setWeeklyOpen]        = useState(false)
+  const [weeklySaveLoading, setWeeklySaveLoading] = useState(false)
+  const [weeklyCopyLoading, setWeeklyCopyLoading] = useState(false)
+  const [weeklyError,       setWeeklyError]       = useState(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -53,6 +65,7 @@ export function TrainingProgramsPage() {
 
   useEffect(() => { load() }, [load])
 
+  // — Form (create / edit) —
   const openAdd  = ()  => { setEditing(null); setFormError(null); setFormOpen(true) }
   const openEdit = (p) => { setEditing(p);    setFormError(null); setFormOpen(true) }
   const closeForm = () => { setFormOpen(false); setEditing(null) }
@@ -63,10 +76,10 @@ export function TrainingProgramsPage() {
     try {
       if (editing) {
         const { data } = await trainingProgramApi.update(editing.id, payload)
-        setPrograms((prev) => prev.map((p) => p.id === editing.id ? data : p))
+        setPrograms(prev => prev.map(p => p.id === editing.id ? data : p))
       } else {
         const { data } = await trainingProgramApi.create(payload)
-        setPrograms((prev) => [data, ...prev])
+        setPrograms(prev => [data, ...prev])
       }
       closeForm()
     } catch (e) {
@@ -76,11 +89,12 @@ export function TrainingProgramsPage() {
     }
   }
 
+  // — Delete —
   const handleDelete = async () => {
     setDelLoading(true)
     try {
       await trainingProgramApi.remove(delTarget.id)
-      setPrograms((prev) => prev.filter((p) => p.id !== delTarget.id))
+      setPrograms(prev => prev.filter(p => p.id !== delTarget.id))
       setDelTarget(null)
     } catch (e) {
       setPageError(e.response?.data?.message ?? t('programs.failDelete'))
@@ -90,12 +104,51 @@ export function TrainingProgramsPage() {
     }
   }
 
+  // — Weekly view —
+  const openWeekly = (p) => { setWeeklyProgram(p); setWeeklyError(null); setWeeklyOpen(true) }
+  const closeWeekly = ()  => { setWeeklyOpen(false); setWeeklyProgram(null) }
+
+  const handleWeeklySave = async (exercises) => {
+    setWeeklySaveLoading(true)
+    setWeeklyError(null)
+    try {
+      const { data } = await trainingProgramApi.update(weeklyProgram.id, {
+        title:         weeklyProgram.title,
+        athleteId:     weeklyProgram.athleteId,
+        weekStartDate: weeklyProgram.weekStartDate,
+        notes:         weeklyProgram.notes,
+        exercises,
+      })
+      setPrograms(prev => prev.map(p => p.id === weeklyProgram.id ? data : p))
+      setWeeklyProgram(data)
+    } catch (e) {
+      setWeeklyError(e.response?.data?.message ?? t('programs.failSave'))
+    } finally {
+      setWeeklySaveLoading(false)
+    }
+  }
+
+  const handleCopyNextWeek = async () => {
+    setWeeklyCopyLoading(true)
+    setWeeklyError(null)
+    try {
+      const { data } = await trainingProgramApi.copyToNextWeek(weeklyProgram.id)
+      setPrograms(prev => [data, ...prev])
+    } catch (e) {
+      setWeeklyError(e.response?.data?.message ?? t('programs.failCopy'))
+    } finally {
+      setWeeklyCopyLoading(false)
+    }
+  }
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-900">{t('programs.title')}</h2>
-          <p className="text-sm text-gray-500 mt-0.5">{!loading && t('programs.total', { n: programs.length })}</p>
+          <p className="text-sm text-gray-500 mt-0.5">
+            {!loading && t('programs.total', { n: programs.length })}
+          </p>
         </div>
         <Button onClick={openAdd}><Plus size={16} className="mr-1" />{t('programs.newProgram')}</Button>
       </div>
@@ -118,13 +171,17 @@ export function TrainingProgramsPage() {
             <tbody className="divide-y divide-gray-50">
               {loading
                 ? Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
-                : programs.map((p) => (
+                : programs.map(p => (
                     <tr key={p.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="h-8 w-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+                          <button
+                            onClick={() => openWeekly(p)}
+                            title={t('programs.viewSchedule')}
+                            className="h-8 w-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0 hover:bg-indigo-100 transition-colors"
+                          >
                             <ClipboardList size={15} className="text-indigo-600" />
-                          </div>
+                          </button>
                           <div>
                             <p className="font-medium text-gray-900">{p.title}</p>
                             {p.notes && <p className="text-xs text-gray-400 truncate max-w-[200px]">{p.notes}</p>}
@@ -141,10 +198,17 @@ export function TrainingProgramsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1 justify-end">
-                          <button onClick={() => openEdit(p)} className="rounded-lg p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
+                          <button
+                            onClick={() => openEdit(p)}
+                            className="rounded-lg p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                            title={t('programs.editProgram')}
+                          >
                             <Pencil size={15} />
                           </button>
-                          <button onClick={() => setDelTarget(p)} className="rounded-lg p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors">
+                          <button
+                            onClick={() => setDelTarget(p)}
+                            className="rounded-lg p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                          >
                             <Trash2 size={15} />
                           </button>
                         </div>
@@ -156,19 +220,45 @@ export function TrainingProgramsPage() {
           </table>
 
           {!loading && programs.length === 0 && (
-            <EmptyState icon={ClipboardList} title={t('programs.noProgramsYet')}
+            <EmptyState
+              icon={ClipboardList}
+              title={t('programs.noProgramsYet')}
               description={t('programs.noProgramsDesc')}
-              action={<Button onClick={openAdd}><Plus size={15} className="mr-1" />{t('programs.newProgram')}</Button>} />
+              action={<Button onClick={openAdd}><Plus size={15} className="mr-1" />{t('programs.newProgram')}</Button>}
+            />
           )}
         </div>
       </div>
 
+      {/* Edit / create form */}
       <Modal open={formOpen} onClose={closeForm} title={editing ? t('programs.editProgram') : t('programs.newTrainingProgram')} size="lg">
-        <ProgramForm initial={editing} athletes={athletes} onSubmit={handleSubmit} onClose={closeForm} loading={formLoading} error={formError} />
+        <ProgramForm
+          initial={editing}
+          athletes={athletes}
+          onSubmit={handleSubmit}
+          onClose={closeForm}
+          loading={formLoading}
+          error={formError}
+        />
       </Modal>
 
+      {/* Weekly schedule view */}
+      <WeeklyProgramView
+        program={weeklyProgram}
+        open={weeklyOpen}
+        onClose={closeWeekly}
+        onSave={handleWeeklySave}
+        onCopyNextWeek={handleCopyNextWeek}
+        saveLoading={weeklySaveLoading}
+        copyLoading={weeklyCopyLoading}
+        error={weeklyError}
+      />
+
       <ConfirmDialog
-        open={!!delTarget} onClose={() => setDelTarget(null)} onConfirm={handleDelete} loading={delLoading}
+        open={!!delTarget}
+        onClose={() => setDelTarget(null)}
+        onConfirm={handleDelete}
+        loading={delLoading}
         title={t('programs.deleteTitle', { name: delTarget?.title ?? '' })}
         message={t('programs.deleteMessage')}
       />

@@ -12,6 +12,7 @@ public record TrainingExerciseResponse(
         Double percentageOfMax,
         String comments,
         Integer orderIndex,
+        Integer dayOfWeek,
         Long exerciseId,
         String exerciseName,
         MuscleGroup muscleGroup,

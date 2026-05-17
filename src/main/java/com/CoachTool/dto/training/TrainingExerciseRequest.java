@@ -9,5 +9,6 @@ public record TrainingExerciseRequest(
         @DecimalMin("0.0") Double weight,
         @DecimalMin("0.0") @DecimalMax("100.0") Double percentageOfMax,
         String comments,
-        @NotNull @Min(0) Integer orderIndex
+        @NotNull @Min(0) Integer orderIndex,
+        @Min(1) @Max(7) Integer dayOfWeek
 ) {}
