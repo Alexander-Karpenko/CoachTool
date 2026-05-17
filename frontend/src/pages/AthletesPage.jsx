@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { UserPlus, Pencil, Trash2, Users } from 'lucide-react'
 import { athleteApi }      from '../api'
 import { useLanguage }     from '../hooks/useLanguage'
@@ -10,7 +11,8 @@ import { Badge }           from '../components/common/Badge'
 import { Skeleton }        from '../components/common/Skeleton'
 import { EmptyState }      from '../components/common/EmptyState'
 import { Alert }           from '../components/common/Alert'
-import { qualBadge }       from '../utils/enums'
+import { qualBadge }           from '../utils/enums'
+import { athleteProfilePath }  from '../utils/constants'
 
 const AVATAR_COLORS = ['bg-blue-500','bg-emerald-500','bg-purple-500','bg-orange-500','bg-rose-500','bg-teal-500','bg-indigo-500','bg-amber-500']
 const avatarColor = (name) => AVATAR_COLORS[name.split('').reduce((a,c) => a + c.charCodeAt(0), 0) % AVATAR_COLORS.length]
@@ -137,7 +139,12 @@ export function AthletesPage() {
                               {initials(a)}
                             </button>
                             <div>
-                              <p className="font-medium text-gray-900">{a.firstName} {a.lastName}</p>
+                              <Link
+                                to={athleteProfilePath(a.id)}
+                                className="font-medium text-gray-900 hover:text-indigo-600 transition-colors"
+                              >
+                                {a.firstName} {a.lastName}
+                              </Link>
                               {a.contactInfo && <p className="text-xs text-gray-400 truncate max-w-[160px]">{a.contactInfo}</p>}
                             </div>
                           </div>

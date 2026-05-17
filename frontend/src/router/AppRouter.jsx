@@ -6,6 +6,7 @@ import { LoginPage }             from '../pages/LoginPage'
 import { RegisterPage }          from '../pages/RegisterPage'
 import { DashboardPage }         from '../pages/DashboardPage'
 import { AthletesPage }          from '../pages/AthletesPage'
+import { AthleteProfilePage }    from '../pages/AthleteProfilePage'
 import { ExercisesPage }         from '../pages/ExercisesPage'
 import { TrainingProgramsPage }  from '../pages/TrainingProgramsPage'
 import { AnalyticsPage }         from '../pages/AnalyticsPage'
@@ -25,6 +26,7 @@ export function AppRouter() {
         <Route element={<DashboardLayout />}>
           <Route path={ROUTES.DASHBOARD}         element={<DashboardPage />} />
           <Route path={ROUTES.ATHLETES}          element={<AthletesPage />} />
+          <Route path={ROUTES.ATHLETE_PROFILE}   element={<AthleteProfilePage />} />
           <Route path={ROUTES.EXERCISES}         element={<ExercisesPage />} />
           <Route path={ROUTES.TRAINING_PROGRAMS} element={<TrainingProgramsPage />} />
           <Route path={ROUTES.ANALYTICS}         element={<AnalyticsPage />} />

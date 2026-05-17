@@ -1,5 +1,6 @@
 export { authApi }            from './authApi'
 export { athleteApi }         from './athleteApi'
+export { athleteMaxApi }      from './athleteMaxApi'
 export { exerciseApi }        from './exerciseApi'
 export { trainingProgramApi } from './trainingProgramApi'
 export { analyticsApi }       from './analyticsApi'
