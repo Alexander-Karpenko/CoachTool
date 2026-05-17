@@ -178,16 +178,21 @@ function EditExerciseModal({ open, exercise, avail, exLoading, onSave, onClose, 
 }
 
 /* ── Exercise card (draggable) ── */
-function ExerciseCard({ ex, isDragging, kgLabel, onEdit, onRemove, onDragStart, onDragEnd }) {
+function ExerciseCard({ ex, isDragging, isDragTarget, kgLabel, onEdit, onRemove,
+                        onDragStart, onDragEnd, onDragOver, onDrop, onDragLeave }) {
   return (
     <div
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      onDragLeave={onDragLeave}
       className={[
         'group flex items-center gap-1.5 rounded-lg bg-white border px-2 py-2 shadow-sm',
         'cursor-grab active:cursor-grabbing select-none transition-all',
-        isDragging ? 'opacity-40 border-indigo-300 shadow-md' : 'border-gray-200 hover:border-gray-300',
+        isDragging   ? 'opacity-40 border-indigo-300 shadow-md' : 'border-gray-200 hover:border-gray-300',
+        isDragTarget ? 'border-t-[3px] border-t-indigo-500' : '',
       ].join(' ')}
     >
       {/* Drag handle */}
@@ -229,7 +234,8 @@ function ExerciseCard({ ex, isDragging, kgLabel, onEdit, onRemove, onDragStart, 
 function DayColumn({ day, dayName, dateStr, exs, isWeekend, isDragOver, draggingIdx,
                      kgLabel, t, onAddClick,
                      onDragEnter, onDragOver, onDragLeave, onDrop,
-                     onCardDragStart, onCardDragEnd,
+                     dragOverCardIdx, onCardDragStart, onCardDragEnd,
+                     onCardDragOver, onCardDrop, onCardDragLeave,
                      onCardEdit, onCardRemove }) {
   return (
     <div
@@ -273,11 +279,15 @@ function DayColumn({ day, dayName, dateStr, exs, isWeekend, isDragOver, dragging
             key={ex._key ?? `${day}-${ex._idx}`}
             ex={ex}
             isDragging={draggingIdx === ex._idx}
+            isDragTarget={dragOverCardIdx === ex._idx}
             kgLabel={kgLabel}
             onEdit={() => onCardEdit(ex._idx)}
             onRemove={() => onCardRemove(ex._idx)}
             onDragStart={e => onCardDragStart(e, ex._idx)}
             onDragEnd={onCardDragEnd}
+            onDragOver={e => onCardDragOver(e, ex._idx)}
+            onDrop={e => onCardDrop(e, ex._idx)}
+            onDragLeave={onCardDragLeave}
           />
         ))}
 
@@ -316,8 +326,9 @@ export function WeeklyProgramView({ program, open, onClose, onSave, onCopyNextWe
   const [editModal, setEditModal] = useState(null)
 
   // DnD state
-  const [draggingIdx, setDraggingIdx] = useState(null)
-  const [dragOverDay, setDragOverDay] = useState(null)
+  const [draggingIdx,    setDraggingIdx]    = useState(null)
+  const [dragOverDay,    setDragOverDay]    = useState(null)
+  const [dragOverCardIdx, setDragOverCardIdx] = useState(null)
 
   useEffect(() => {
     exerciseApi.getAll()
@@ -386,6 +397,7 @@ export function WeeklyProgramView({ program, open, onClose, onSave, onCopyNextWe
   const onCardDragEnd = () => {
     setDraggingIdx(null)
     setDragOverDay(null)
+    setDragOverCardIdx(null)
   }
 
   const onColumnDragEnter = (e, day) => {
@@ -412,6 +424,38 @@ export function WeeklyProgramView({ program, open, onClose, onSave, onCopyNextWe
     }
     setDraggingIdx(null)
     setDragOverDay(null)
+    setDragOverCardIdx(null)
+  }
+
+  /* ── Card-level DnD (within-day and cross-day reorder) ── */
+  const onCardItemDragOver = (e, targetIdx) => {
+    e.preventDefault()
+    e.stopPropagation()
+    e.dataTransfer.dropEffect = 'move'
+    if (dragOverCardIdx !== targetIdx) setDragOverCardIdx(targetIdx)
+  }
+
+  const onCardItemDrop = (e, targetIdx) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const srcIdx = parseInt(e.dataTransfer.getData('text/plain'), 10)
+    if (!isNaN(srcIdx) && srcIdx >= 0 && srcIdx < local.length && srcIdx !== targetIdx) {
+      setLocal(prev => {
+        const next = [...prev]
+        const [moved] = next.splice(srcIdx, 1)
+        const insertAt = srcIdx < targetIdx ? targetIdx - 1 : targetIdx
+        const targetDay = next[insertAt]?.dayOfWeek ?? moved.dayOfWeek
+        next.splice(insertAt, 0, { ...moved, dayOfWeek: targetDay })
+        return next
+      })
+    }
+    setDraggingIdx(null)
+    setDragOverDay(null)
+    setDragOverCardIdx(null)
+  }
+
+  const onCardItemDragLeave = (e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) setDragOverCardIdx(null)
   }
 
   /* ── Save ── */
@@ -483,8 +527,12 @@ export function WeeklyProgramView({ program, open, onClose, onSave, onCopyNextWe
                   onDragOver={onColumnDragOver}
                   onDragLeave={e => onColumnDragLeave(e, day)}
                   onDrop={e => onColumnDrop(e, day)}
+                  dragOverCardIdx={dragOverCardIdx}
                   onCardDragStart={(e, idx) => onCardDragStart(e, idx)}
                   onCardDragEnd={onCardDragEnd}
+                  onCardDragOver={(e, idx) => onCardItemDragOver(e, idx)}
+                  onCardDrop={(e, idx) => onCardItemDrop(e, idx)}
+                  onCardDragLeave={onCardItemDragLeave}
                   onCardEdit={idx => setEditModal({ idx })}
                   onCardRemove={idx => removeAt(idx)}
                 />

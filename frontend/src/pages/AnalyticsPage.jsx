@@ -123,6 +123,14 @@ export function AnalyticsPage() {
     : 1
 
   const vs = report?.volumeStats
+  const avgDailyVol = vs?.avgDailyVolume != null
+    ? vs.avgDailyVolume
+    : (() => {
+        const chart = report?.weeklyChart ?? []
+        const totalVol  = chart.reduce((s, w) => s + w.totalVolume, 0)
+        const totalDays = chart.reduce((s, w) => s + (w.trainingDays > 0 ? w.trainingDays : w.exerciseCount > 0 ? 1 : 0), 0)
+        return totalDays > 0 ? Math.round((totalVol / totalDays) * 100) / 100 : 0
+      })()
 
   return (
     <div className="space-y-6">
@@ -210,14 +218,14 @@ export function AnalyticsPage() {
               sub={fmtPct(vs.volumeChangePercent)} subColor={vs.volumeChangePercent >= 0 ? 'text-emerald-600' : 'text-red-500'} />
             <StatCard icon={BarChart2}  label={t('analytics.avgWeeklyVolume')}  value={fmtKg(vs.averageWeeklyVolume, kgLabel)} />
             <StatCard icon={TrendingUp} label={t('analytics.peakWeeklyVolume')} value={fmtKg(vs.peakWeeklyVolume, kgLabel)} />
-            <StatCard icon={Dumbbell}   label={t('analytics.avgIntensity')}     value={vs.averageIntensity ? `${fmtNum(vs.averageIntensity, 1)}%` : '—'}
+            <StatCard icon={Dumbbell}   label={t('analytics.avgIntensity')}     value={vs.averageIntensity != null ? `${fmtNum(vs.averageIntensity, 1)}%` : '—'}
               sub={fmtPct(vs.intensityChangePercent)} subColor={vs.intensityChangePercent >= 0 ? 'text-emerald-600' : 'text-red-500'} />
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard icon={Calendar} label={t('analytics.programs')}      value={fmtNum(vs.totalPrograms)} />
             <StatCard icon={Dumbbell} label={t('analytics.exercises')}     value={fmtNum(vs.totalExercises)} />
-            <StatCard icon={Flame}    label={t('analytics.avgDailyVolume')} value={fmtKg(vs.avgDailyVolume, kgLabel)} />
+            <StatCard icon={Flame}    label={t('analytics.avgDailyVolume')} value={fmtKg(avgDailyVol, kgLabel)} />
           </div>
 
           {/* Weekly volume chart */}
