@@ -120,6 +120,9 @@ export const ru = {
     exercisesCount: 'упражнений: {n}',
     weeklyView: 'Расписание недели',
     viewSchedule: 'Открыть расписание',
+    editExercise: 'Редактировать упражнение',
+    dropHere: 'Бросить сюда',
+    dragging: 'Перетащите в другой день',
     copyNextWeek: 'Скопировать на след. неделю',
     copySuccess: 'Программа скопирована на следующую неделю',
     failCopy: 'Не удалось скопировать программу',
@@ -225,6 +228,8 @@ export const ru = {
       sets: 'Подх.',
       reps: 'Повт.',
       create: 'Создать программу',
+      comments: 'Комментарий',
+      percentOfMax: '% от 1ПМ',
     },
   },
   enums: {

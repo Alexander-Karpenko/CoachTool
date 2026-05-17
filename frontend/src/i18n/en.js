@@ -120,6 +120,9 @@ export const en = {
     exercisesCount: '{n} exercises',
     weeklyView: 'Weekly Schedule',
     viewSchedule: 'View weekly schedule',
+    editExercise: 'Edit exercise',
+    dropHere: 'Drop here',
+    dragging: 'Drag to another day',
     copyNextWeek: 'Copy to next week',
     copySuccess: 'Program copied to next week',
     failCopy: 'Failed to copy program',
@@ -225,6 +228,8 @@ export const en = {
       sets: 'Sets',
       reps: 'Reps',
       create: 'Create program',
+      comments: 'Comments',
+      percentOfMax: '% of 1RM',
     },
   },
   enums: {
