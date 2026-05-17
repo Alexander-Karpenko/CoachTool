@@ -1,6 +1,8 @@
 import { Bell, Menu, Search } from 'lucide-react'
+import { Link }        from 'react-router-dom'
 import { useAuth }     from '../hooks/useAuth'
 import { useLanguage } from '../hooks/useLanguage'
+import { ROUTES }      from '../utils/constants'
 
 export function Header({ title, onMenuClick }) {
   const { user }       = useAuth()
@@ -50,15 +52,15 @@ export function Header({ title, onMenuClick }) {
           <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-indigo-500" />
         </button>
 
-        {/* Avatar */}
-        <div className="flex items-center gap-2">
+        {/* Avatar → profile */}
+        <Link to={ROUTES.PROFILE} className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-gray-100 transition-colors" title={t('nav.profile')}>
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
             {initials}
           </div>
           <span className="text-sm font-medium text-gray-700 hidden sm:block truncate max-w-[120px]">
             {fullName || user?.email}
           </span>
-        </div>
+        </Link>
       </div>
     </header>
   )

@@ -129,9 +129,13 @@ export function AthletesPage() {
                       <tr key={a.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className={`h-8 w-8 rounded-full ${avatarColor(a.firstName + a.lastName)} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+                            <button
+                              onClick={() => openEdit(a)}
+                              className={`h-8 w-8 rounded-full ${avatarColor(a.firstName + a.lastName)} flex items-center justify-center text-white text-xs font-bold shrink-0 hover:ring-2 hover:ring-offset-1 hover:ring-indigo-400 transition-all`}
+                              title={t('athletes.editAthlete')}
+                            >
                               {initials(a)}
-                            </div>
+                            </button>
                             <div>
                               <p className="font-medium text-gray-900">{a.firstName} {a.lastName}</p>
                               {a.contactInfo && <p className="text-xs text-gray-400 truncate max-w-[160px]">{a.contactInfo}</p>}

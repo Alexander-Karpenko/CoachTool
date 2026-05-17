@@ -22,9 +22,13 @@ function ExerciseCard({ exercise, onEdit, onDelete, t }) {
     <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="h-9 w-9 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+          <button
+            onClick={() => onEdit(exercise)}
+            className="h-9 w-9 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0 hover:bg-indigo-100 transition-colors"
+            title={t('exercises.editExercise')}
+          >
             <Dumbbell size={17} className="text-indigo-600" />
-          </div>
+          </button>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-gray-900 truncate">{exercise.name}</p>
             <p className="text-xs text-gray-400 mt-0.5">{unit}</p>
