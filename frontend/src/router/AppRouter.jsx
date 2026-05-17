@@ -9,6 +9,7 @@ import { AthletesPage }          from '../pages/AthletesPage'
 import { ExercisesPage }         from '../pages/ExercisesPage'
 import { TrainingProgramsPage }  from '../pages/TrainingProgramsPage'
 import { AnalyticsPage }         from '../pages/AnalyticsPage'
+import { ProfilePage }           from '../pages/ProfilePage'
 import { NotFoundPage }          from '../pages/NotFoundPage'
 import { ROUTES }                from '../utils/constants'
 
@@ -27,6 +28,7 @@ export function AppRouter() {
           <Route path={ROUTES.EXERCISES}         element={<ExercisesPage />} />
           <Route path={ROUTES.TRAINING_PROGRAMS} element={<TrainingProgramsPage />} />
           <Route path={ROUTES.ANALYTICS}         element={<AnalyticsPage />} />
+          <Route path={ROUTES.PROFILE}           element={<ProfilePage />} />
         </Route>
       </Route>
 

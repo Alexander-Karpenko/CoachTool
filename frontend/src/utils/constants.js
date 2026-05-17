@@ -6,4 +6,5 @@ export const ROUTES = {
   EXERCISES:         '/exercises',
   TRAINING_PROGRAMS: '/training-programs',
   ANALYTICS:         '/analytics',
+  PROFILE:           '/profile',
 }

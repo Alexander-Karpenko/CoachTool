@@ -5,6 +5,7 @@ import {
   Dumbbell,
   ClipboardList,
   BarChart2,
+  UserCircle,
   LogOut,
   X,
 } from 'lucide-react'
@@ -42,6 +43,7 @@ export function Sidebar({ mobileOpen = false, onClose }) {
     { to: ROUTES.EXERCISES,         icon: Dumbbell,        label: t('nav.exercises') },
     { to: ROUTES.TRAINING_PROGRAMS, icon: ClipboardList,   label: t('nav.programs')  },
     { to: ROUTES.ANALYTICS,         icon: BarChart2,       label: t('nav.analytics') },
+    { to: ROUTES.PROFILE,           icon: UserCircle,      label: t('nav.profile')   },
   ]
 
   const sidebarContent = (

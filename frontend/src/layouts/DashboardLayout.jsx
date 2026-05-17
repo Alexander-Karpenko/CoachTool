@@ -16,6 +16,7 @@ export function DashboardLayout() {
     [ROUTES.EXERCISES]:         t('nav.exercises'),
     [ROUTES.TRAINING_PROGRAMS]: t('nav.programs'),
     [ROUTES.ANALYTICS]:         t('nav.analytics'),
+    [ROUTES.PROFILE]:           t('nav.profile'),
   }
 
   const title = pageTitles[pathname] ?? 'CoachTool'

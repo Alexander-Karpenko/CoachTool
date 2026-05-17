@@ -55,6 +55,18 @@ export function AuthProvider({ children }) {
     navigate(ROUTES.LOGIN)
   }, [navigate])
 
+  const updateUser = useCallback((updatedInfo) => {
+    storage.setUser(updatedInfo)
+    setUser(updatedInfo)
+  }, [])
+
+  const deleteAccount = useCallback(async () => {
+    await authApi.deleteAccount()
+    storage.clear()
+    setUser(null)
+    navigate(ROUTES.LOGIN)
+  }, [navigate])
+
   const clearError = useCallback(() => setError(null), [])
 
   const value = useMemo(() => ({
@@ -65,8 +77,10 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    updateUser,
+    deleteAccount,
     clearError,
-  }), [user, loading, error, login, register, logout, clearError])
+  }), [user, loading, error, login, register, logout, updateUser, deleteAccount, clearError])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
